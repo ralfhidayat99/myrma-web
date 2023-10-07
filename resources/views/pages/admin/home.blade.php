@@ -21,14 +21,16 @@
 
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Periode </span>
-                            <select name="month" id="monthFilter" class="form-control">
+                            <input type="text" class="form-control" placeholder="Pilih Tanggal" id="periodePicker"
+                                name="month">
+                            {{-- <select name="month" id="monthFilter" class="form-control">
                                 @foreach ($months as $key => $month)
                                     <option value="{{ date('Y-m', strtotime($month)) }}"
                                         {{ $bulanIni == $month ? 'selected' : '' }}>
                                         {{ Carbon::parse(date('Y-m', strtotime($month . ' -1 month')) . '-25')->isoFormat('D MMMM Y') . ' - ' . Carbon::parse($month . '-24')->isoFormat('D MMMM Y') }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select> --}}
                             <a class="btn btn-outline-info" type="button" href="#" id="myButton"><i
                                     class="fa fa-search" aria-hidden="true"></i></a>
                             <a class="btn btn-outline-success" type="button"
@@ -89,13 +91,20 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url('assets/extensions/simple-datatables/umd/simple-datatables.js') }}"></script>
     <script src="{{ url('assets/static/js/pages/simple-datatables.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 
     <script>
         $('#myButton').click(function() {
-            var selectValue = $('#monthFilter').val();
+            var selectValue = $('#periodePicker').val();
             var url = "{{ url('lemburan') }}/" + selectValue;
             $('#myButton').attr('href', url);
+        });
+
+        flatpickr("#periodePicker", {
+            // minDate: "today",
+            mode: "range",
+            dateFormat: "d-m-Y",
         });
     </script>
 @endsection

@@ -486,9 +486,9 @@ class LemburanExport implements ShouldAutoSize, WithHeadings, WithEvents
 
 
                 // Set the title of the new sheet
-                $event->sheet->getParent()->getSheet(2)->setTitle('RINGKASAN');
+                $event->sheet->getParent()->getSheet(1)->setTitle('RINGKASAN');
 
-                $thirdSheet = $event->sheet->getParent()->getSheet(2);
+                $thirdSheet = $event->sheet->getParent()->getSheet(1);
                 $periode = Carbon::parse(date('Y-m', strtotime($this->periode . ' -1 month')) . '-25')->isoFormat('D MMMM Y') . ' - ' . Carbon::parse($this->periode . '-24')->isoFormat('D MMMM Y');
 
                 $thirdSheet->setCellValue('a1', 'DATA LEMBUR KARYAWAN KANTOR & UMUM');

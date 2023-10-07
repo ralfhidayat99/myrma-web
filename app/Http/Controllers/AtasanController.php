@@ -27,8 +27,15 @@ class AtasanController extends Controller
         Carbon::setLocale('id');
         $data['menu'] = 'Daftar Lemburan';
         $data['bulanIni'] = $month;
-        $startDate =   date('Y-m', strtotime($month . " -1 month")) . '-25';
-        $endDate = $month  . '-24';
+        $periode = explode(' to ', $month);
+        // $startDate =   date('Y-m', strtotime($month . " -1 month")) . '-25';
+        // $endDate = $month  . '-24';
+        $startDate = date("Y-m-d", strtotime($periode[0]));
+        if (count($periode) > 1) {
+            $endDate = date("Y-m-d", strtotime($periode[1]));
+        } else {
+            $endDate = $startDate;
+        }
         $data['data'] = Lembur::select('users.name', 'lemburs.alasan', 'lemburs.tanggal', 'lemburs.approve', 'lemburs.approved_by', 'lemburs.created_at', 'supervisors.name as spv')
             ->join('users', 'lemburs.id_user', '=', 'users.id')
             ->join('supervisors', 'supervisors.id', '=', 'users.id_atasan')
@@ -166,7 +173,7 @@ class AtasanController extends Controller
             array_push($lembur, $employee);
         }
         dd($lembur);
-        return Excel::download(new LemburanExport($lembur), 'lemburan.xlsx');
+        return Excel::download(new LemburanExport($lembur, $request->month), 'lemburan.xlsx');
     }
 
     function formatTanggalIndonesia($tanggal)

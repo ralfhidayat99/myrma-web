@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\AtasanController;
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\LemburController;
 use App\Http\Controllers\api\SupervisorController;

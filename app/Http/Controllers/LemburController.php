@@ -16,8 +16,6 @@ class LemburController extends Controller
     {
         $tglFormat = new TglFormatter();
         $perPage = $request->input('per_page', 5);
-
-
         $data['menu'] = 'dashboard';
         $lemburan = Lembur::where('id_user', auth()->user()->id)->orderBy('id', 'desc')->paginate($perPage);
         foreach ($lemburan as $key => $value) {
@@ -28,6 +26,7 @@ class LemburController extends Controller
 
         return view('pages/home', $data);
     }
+
     public function range($tgl, Request $request)
     {
 
@@ -106,8 +105,6 @@ class LemburController extends Controller
     public function storeOther(Request $request)
     {
         // dd($request->all());
-
-
         $validateData = $request->validate([
             'tanggal' => 'required',
             'alasan' => 'required',
@@ -122,7 +119,6 @@ class LemburController extends Controller
         }
         // dd($validateData);
         $user = auth()->user();
-
         // return response($request);
 
         $data = [

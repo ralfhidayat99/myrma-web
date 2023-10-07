@@ -51,7 +51,7 @@
                 </li>
                 @if (Auth::user()->is_admin === 1)
                     <li class="sidebar-item {{ $menu == 'lemburan' ? 'active' : '' }}">
-                        <a href="{{ url('lemburan/') . '/' . date('Y-m') }}" class="sidebar-link">
+                        <a href="{{ url('lemburan/') . '/' . date('Y-m-d') }}" class="sidebar-link">
                             <i class="fa-solid fa-file-invoice"></i>
                             <span>Lemburan</span>
                         </a>

@@ -117,10 +117,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function prosesAbsen(file, first) {
         document.getElementById("absen2Loading").style.display = "inline-block";
-        let filter = document.getElementById("monthFilter");
+        let filter = document.getElementById("periodePicker");
         const formData = new FormData();
         formData.append("filter", filter.value);
         formData.append("first", first);
+
+        console.log(filter.value);
 
         if (first) {
             formData.append("absen1", file);
@@ -132,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             method: "POST",
             body: formData,
         })
+        
             .then((response) => response.json())
             .then((data) => {
                 let form = document.getElementById("formGenrate");

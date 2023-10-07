@@ -107,13 +107,15 @@
                                     Genrate laporan</h4>
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="basic-addon1">Periode</span>
-                                    <select name="month" id="monthFilter" class="form-control">
+                                    <input type="text" class="form-control" placeholder="Pilih Tanggal"
+                                        id="periodePicker" name="month">
+                                    {{-- <select name="month" id="monthFilter" class="form-control">
                                         @foreach ($months as $key => $month)
                                             <option value="{{ $month }}" {{ $bulanIni == $month ? 'selected' : '' }}>
                                                 {{ Carbon::parse(date('Y-m', strtotime($month . ' -1 month')) . '-25')->isoFormat('D MMMM Y') . ' - ' . Carbon::parse($month . '-24')->isoFormat('D MMMM Y') }}
                                             </option>
                                         @endforeach
-                                    </select>
+                                    </select> --}}
 
                                 </div>
                             </div>
@@ -147,6 +149,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <div id="dropzone2" class="dropzone">
                                         <span id="dragText2">Drag and drop file here, or click to browse</span>
                                         <input name="absen2" type="file" id="fileInput2" style="display: none;"
@@ -174,6 +177,15 @@
 
     </div>
     <script src="{{ url('assets/js/laporan.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        flatpickr("#periodePicker", {
+            // minDate: "today",
+            mode: "range",
+            dateFormat: "d/m/Y",
+        });
+    </script>
     {{-- <style>
         .basic-filepond {
             width: 100%;

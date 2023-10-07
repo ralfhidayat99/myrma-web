@@ -45,6 +45,7 @@ class LaporanController extends Controller
         ]);
 
         $validateData['first'] = $validateData['first'] === 'true' ? true : false;
+        return response($validateData);
 
 
         // filter diambil dari form, priode diambil dari file

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+|     Web Routes
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
@@ -35,7 +35,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin/login', [AtasanController::class, 'authenticate']);
     Route::get('/lemburan/{month}', [AtasanController::class, 'lemburan']);
     Route::get('lemburan/export',  [AtasanController::class, 'exportToExcel'])->name('lemburan.export');
-    Route::post('lemburan/read',  [AtasanController::class, 'readExcel'])->name('lemburan.read');
+    // Route::post('lemburan/read',  [AtasanController::class, 'readExcel'])->name('lemburan.read');
 
     Route::get('laporan',  [LaporanController::class, 'index'])->name('admin.laporan');
     Route::post('laporan/generate',  [LaporanController::class, 'generateLaporan'])->name('laporan.generate');
