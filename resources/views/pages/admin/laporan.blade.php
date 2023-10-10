@@ -108,7 +108,7 @@
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="basic-addon1">Periode</span>
                                     <input type="text" class="form-control" placeholder="Pilih Tanggal"
-                                        id="periodePicker" name="month">
+                                        id="periodePicker" name="month" value="{{ $bulanIni }}">
                                     {{-- <select name="month" id="monthFilter" class="form-control">
                                         @foreach ($months as $key => $month)
                                             <option value="{{ $month }}" {{ $bulanIni == $month ? 'selected' : '' }}>
@@ -121,24 +121,27 @@
                             </div>
                             <div class="card-content" style="margin-top:-50px">
                                 <div class="card-body">
-                                    <p class="card-text">Upload file absensi disini
-                                    </p>
-                                    <!-- Basic file uploader -->
-                                    {{-- <input type="file" name="excel_file"> --}}
-                                    {{-- <input type="file" name="excel_file"> --}}
-                                    <div id="dropzone1" class="dropzone" style="margin-top:-20px">
-                                        <span id="dragText1">Drag and drop file here, or click to
-                                            browse</span>
-                                        <input name="absen1" type="file" id="fileInput1" style="display: none;">
-                                        <div id="filename1" class="filename" style="display: none">
-                                            <span id="filenameText"></span>
+                                    @foreach ($periode as $key => $period)
+                                        <p class="card-text">Upload file absensi disini
+                                        </p>
+                                        <!-- Basic file uploader -->
+                                        {{-- <input type="file" name="excel_file"> --}}
+                                        {{-- <input type="file" name="excel_file"> --}}
+                                        <div id="dropzone1" class="dropzone" style="margin-top:-20px">
+                                            <span id="dragText1">Drag and drop file here, or click to
+                                                browse</span>
+                                            <input name="{{ 'absen' . $key }}" type="file" id="fileInput1"
+                                                style="display: none;">
+                                            <div id="filename1" class="filename" style="display: none">
+                                                <span id="filenameText"></span>
 
+                                            </div>
+                                            <div id="splash" class="splash-animation"></div>
                                         </div>
-                                        <div id="splash" class="splash-animation"></div>
-                                    </div>
-                                    <br>
+                                        <br>
+                                    @endforeach
 
-                                    <div class="row">
+                                    {{-- <div class="row">
                                         <div class="col-md-6">
                                             <p class="card-text">Upload file absensi disini</p>
                                         </div>
@@ -149,7 +152,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <div id="dropzone2" class="dropzone">
                                         <span id="dragText2">Drag and drop file here, or click to browse</span>
                                         <input name="absen2" type="file" id="fileInput2" style="display: none;"
@@ -158,7 +160,7 @@
                                             <span id="filenameText"></span>
                                         </div>
                                         <div id="splash" class="splash-animation"></div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                             <div class="card-footer">

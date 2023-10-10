@@ -17,6 +17,7 @@ class LaporanController extends Controller
     {
         $data['menu'] = 'lembur';
         $data['bulanIni'] = $request->month;
+        $data['periode'] = $this->getPeriod($request->month);
         $data['months'] = [
             "2023-01",
             "2023-02",
@@ -32,6 +33,51 @@ class LaporanController extends Controller
             "2023-12",
         ];
         return view('pages.admin.laporan', $data);
+    }
+
+    function getPeriod($tgl)
+    {
+        // Tanggal awal dan akhir dalam format "Y-m-d"
+        $bln = explode(' to ', $tgl);
+        if (count($bln) > 1) {
+            $tanggal_awal = $bln[0];
+            $tanggal_akhir = $bln[1];
+        } else {
+            $tanggal_awal = $bln[0];
+            $tanggal_akhir = $bln[0];
+        }
+
+        // Buat objek DateTime untuk tanggal awal dan akhir
+        $datetime_awal = new DateTime($tanggal_awal);
+        $datetime_akhir = new DateTime($tanggal_akhir);
+
+        // Inisialisasi array untuk menyimpan periode tanggal
+        $periode_tanggal = [];
+
+        // Iterasi melalui setiap periode
+        while ($datetime_awal <= $datetime_akhir) {
+            // Tanggal awal periode
+            $tanggal_awal_periode = $datetime_awal->format("Y-m-d");
+
+            // Tanggal akhir periode
+            $tanggal_akhir_periode = $datetime_awal->format("Y-m-t");
+
+            // Jika tanggal akhir periode melebihi tanggal akhir rentang, atur tanggal akhir ke tanggal akhir rentang
+            if ($datetime_akhir < new DateTime($tanggal_akhir_periode)) {
+                $tanggal_akhir_periode = $tanggal_akhir;
+            }
+
+            // Tambahkan pasangan tanggal awal dan tanggal akhir ke dalam array
+            $periode_tanggal[] = [$tanggal_awal_periode, $tanggal_akhir_periode];
+
+            // Pindah ke bulan berikutnya
+            $datetime_awal->modify('first day of next month');
+        }
+
+
+
+        // dd($periode_tanggal);
+        return $periode_tanggal;
     }
 
     public function cekFileAbsen(Request $request)

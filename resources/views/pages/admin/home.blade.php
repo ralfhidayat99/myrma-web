@@ -22,7 +22,7 @@
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">Periode </span>
                             <input type="text" class="form-control" placeholder="Pilih Tanggal" id="periodePicker"
-                                name="month">
+                                name="month" value="{{ $bulanIni }}">
                             {{-- <select name="month" id="monthFilter" class="form-control">
                                 @foreach ($months as $key => $month)
                                     <option value="{{ date('Y-m', strtotime($month)) }}"

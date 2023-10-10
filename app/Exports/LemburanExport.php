@@ -207,7 +207,6 @@ class LemburanExport implements ShouldAutoSize, WithHeadings, WithEvents
                     $event->sheet->getStyle('A' . ($index + count($lemburanPegawai) - 1) . ':j' . ($index + count($lemburanPegawai) - 1))
                         ->getBorders()->getBottom()->setBorderStyle(Border::BORDER_MEDIUM);
 
-
                     $event->sheet->getStyle('a4' . ':c' . $index)->getFont()->setBold(true);
                     $event->sheet->getStyle('i4' . ':j' . $index)->getFont()->setBold(true);
                     $index += count($lemburanPegawai);
