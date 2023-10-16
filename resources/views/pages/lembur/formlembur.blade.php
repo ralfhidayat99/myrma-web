@@ -92,7 +92,7 @@
     </section>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <script>
+    {{-- <script>
         var textarea = document.getElementById("alasan");
         var charCount = document.getElementById("charCount");
         var maxLength = 100; // Jumlah karakter maksimal yang diperbolehkan
@@ -125,7 +125,7 @@
             }
 
         });
-    </script>
+    </script> --}}
     <script>
         // Mendapatkan elemen input datetime-local
         var dateTimeInput = document.getElementById("tanggal");
@@ -143,10 +143,12 @@
         });
         flatpickr("#jam_mulai", {
             enableTime: true,
-            noCalendar: true,
             time_24hr: true,
+            noCalendar: true,
             dateFormat: "H:i",
-            defaultDate: "16:00"
+            defaultDate: "16:00",
+            // minTime: "16:00",
+            // maxTime: "22:30",
         });
     </script>
 @endsection

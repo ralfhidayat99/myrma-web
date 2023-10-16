@@ -33,7 +33,7 @@
             </header>
 
             <div style="margin-top: -20px">
-                <h3>Profile Statistics</h3>
+                <h3>{{ $menu }}</h3>
             </div>
             @yield('content')
 

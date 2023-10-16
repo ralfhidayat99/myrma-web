@@ -114,24 +114,30 @@
                                             <option value="{{ $month }}" {{ $bulanIni == $month ? 'selected' : '' }}>
                                                 {{ Carbon::parse(date('Y-m', strtotime($month . ' -1 month')) . '-25')->isoFormat('D MMMM Y') . ' - ' . Carbon::parse($month . '-24')->isoFormat('D MMMM Y') }}
                                             </option>
-                                        @endforeach
+                                        @endforeacha
                                     </select> --}}
 
                                 </div>
                             </div>
                             <div class="card-content" style="margin-top:-50px">
                                 <div class="card-body">
+                                    <div class="col-md-6 text-end">
+                                        <div class="spinner-border text-danger" role="status" id="absen2Loading"
+                                            style="display: none">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
                                     @foreach ($periode as $key => $period)
                                         <p class="card-text">Upload file absensi disini
                                         </p>
                                         <!-- Basic file uploader -->
+                                        {{-- <input type="file" name="excel_f/ile"> --}}
                                         {{-- <input type="file" name="excel_file"> --}}
-                                        {{-- <input type="file" name="excel_file"> --}}
-                                        <div id="dropzone1" class="dropzone" style="margin-top:-20px">
+                                        <div id="{{ 'dropzone' . $key }}" class="dropzone" style="margin-top:-20px">
                                             <span id="dragText1">Drag and drop file here, or click to
                                                 browse</span>
-                                            <input name="{{ 'absen' . $key }}" type="file" id="fileInput1"
-                                                style="display: none;">
+                                            <input name="{{ 'absen' . $key }}" type="file" class="fileInput"
+                                                id="{{ 'fileInput' . $key }}" style="display: none;">
                                             <div id="filename1" class="filename" style="display: none">
                                                 <span id="filenameText"></span>
 
@@ -185,7 +191,7 @@
         flatpickr("#periodePicker", {
             // minDate: "today",
             mode: "range",
-            dateFormat: "d/m/Y",
+            dateFormat: "Y-m-d",
         });
     </script>
     {{-- <style>

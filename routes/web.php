@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\AtasanController;
+use App\Http\Controllers\CutiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LemburController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,6 +42,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('laporan',  [LaporanController::class, 'index'])->name('admin.laporan');
     Route::post('laporan/generate',  [LaporanController::class, 'generateLaporan'])->name('laporan.generate');
     Route::get('laporan/test',  [LaporanController::class, 'testGenerateLaporan']);
+
+    Route::get('cuti',  [CutiController::class, 'index']);
+
+    Route::resource('users', UserController::class);
 });
 
 

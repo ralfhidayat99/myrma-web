@@ -51,14 +51,14 @@
                 </li>
                 @if (Auth::user()->is_admin === 1)
                     <li class="sidebar-item {{ $menu == 'lemburan' ? 'active' : '' }}">
-                        <a href="{{ url('lemburan/') . '/' . '1-' . date('m-Y') . ' to ' . date('d-m-Y') }}"
+                        <a href="{{ url('lemburan/') . '/' . '25-' . date('m-Y') . ' to ' . date('d-m-Y') }}"
                             class="sidebar-link">
                             <i class="fa-solid fa-file-invoice"></i>
                             <span>Lemburan</span>
                         </a>
                     </li>
-                    <li class="sidebar-item {{ $menu == 'laporan' ? 'active' : '' }}">
-                        <a href="{{ url('') }}" class="sidebar-link">
+                    <li class="sidebar-item {{ $menu == 'Karyawan' ? 'active' : '' }}">
+                        <a href="{{ url('users') }}" class="sidebar-link">
                             <i class="fa-solid fa-users"></i>
                             <span>Karyawan</span>
                         </a>
@@ -96,7 +96,7 @@
                 @endif
 
                 <li class="sidebar-item {{ $menu == 'cuti' ? 'active' : '' }}">
-                    <a href="{{ url('') }}" class="sidebar-link">
+                    <a href="{{ url('cuti') }}" class="sidebar-link">
                         <i class="fa-solid fa-hotel"></i>
                         <span>Cuti</span>
                     </a>
