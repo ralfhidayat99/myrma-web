@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Master;
 use App\Models\Supervisor;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -38,10 +39,12 @@ class LoginController extends Controller
             //     return redirect()->intended('/');
             // }
             $spv = Supervisor::find(auth()->user()->id_atasan);
+            $cutoff = Master::first();
             $request->session()->put('id', auth()->user()->id);
             $request->session()->put('name', auth()->user()->username);
             $request->session()->put('divisi', auth()->user()->divisi);
             $request->session()->put('spv', $spv->name);
+            $request->session()->put('cutoff', $cutoff->tgl_cutoff);
             return redirect()->intended('/');
         }
 

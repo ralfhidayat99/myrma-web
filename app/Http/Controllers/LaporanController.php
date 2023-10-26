@@ -84,30 +84,24 @@ class LaporanController extends Controller
 
     public function cekFileAbsen(Request $request)
     {
-        if (!$request->hasFile('absen1') && !$request->hasFile('absen2')) {
+        if (!$request->hasFile('absen')) {
             return response()->json("file tidak ditemukan");
         }
+
         $validateData = $request->validate([
             'filter' => 'required',
-            'first' => 'required',
+            'key' => 'required|numeric'
         ]);
-
-        $validateData['first'] = $validateData['first'] === 'true' ? true : false;
-
-        // return response($filter);
-
+        // return response($request);
+        $file = $request->file('absen');
+        $filter = explode(',', $validateData['filter']);
+        $filterA = str_replace('-', '/', $filter[0]);
+        $filterB = str_replace('-', '/', $filter[1]);
+        // $filterB = DateTime::createFromFormat('d/m/Y', $filter[1]);
 
         // filter diambil dari form, priode diambil dari file
-        if ($validateData['first']) {
-            $file = $request->file('absen1');
-            $filterA = '25/' . date('m/Y', strtotime($validateData['filter'] . ' -1 month')); // dikurangi 1 bulan karna file absen pertama
-            $filterB = date('t/m/Y', strtotime($validateData['filter'] . ' -1 month')); // dikurangi 1 bulan karna file absen pertama
+        $key = intval($validateData['key']);
 
-        } else {
-            $file = $request->file('absen2');
-            $filterA = '01/' . date('m/Y', strtotime($validateData['filter']));
-            $filterB = '24/' . date('m/Y', strtotime($validateData['filter']));
-        }
 
         $spreadsheet = IOFactory::load($file);
         $sheet = $spreadsheet->getActiveSheet();
@@ -116,9 +110,10 @@ class LaporanController extends Controller
         $exp = explode('~', $periode);
         $periodeAwal = str_replace(' ', '', $exp[0]);
         $periodeAkhir = str_replace(' ', '', $exp[1]);
-
+        // return response($key <= 0 ? true : false);
         if ($filterA == $periodeAwal && $filterB == $periodeAkhir) {
-            return $this->readExcel(DateTime::createFromFormat('d/m/Y', $filterA), DateTime::createFromFormat('d/m/Y', $filterB), $file, $validateData['first']);
+            // return $this->readExcel($filterA, $filterB, $file, true);
+            return $this->readExcel(DateTime::createFromFormat('d/m/Y', $filterA), DateTime::createFromFormat('d/m/Y', $filterB), $file, $key <= 0 ? true : false);
         }
         return response()->json([
             'message' => 'file tidak sesuai',
@@ -141,11 +136,12 @@ class LaporanController extends Controller
         //     'endDate' => $endDate,
         // ]);
 
-        $dataLemburan = Lembur::select('users.name', 'users.departemen', 'users.jabatan', 'users.divisi', 'lemburs.alasan', 'lemburs.is_hari_libur', 'lemburs.tanggal')
+        $dataLemburan = Lembur::select('users.name', 'users.departemen', 'users.jabatan', 'users.divisi', 'lemburs.alasan', 'lemburs.is_hari_libur', 'lemburs.tanggal', 'lemburs.jam_mulai', 'lemburs.is_lewat_hari')
             ->join('users', 'lemburs.id_user', '=', 'users.id')
             // ->whereMonth('tanggal', '=', $periode)
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->where('approve', 1)
+            ->orderBy('tanggal', 'desc')
             ->get()->toArray();
 
         $spreadsheet = IOFactory::load($file);
@@ -216,6 +212,8 @@ class LaporanController extends Controller
                             "jabatan" => $value['jabatan'],
                             "divisi" => $value['divisi'],
                             "tanggal" => $this->formatTanggalIndonesia($value['tanggal']),
+                            "jam_mulai" => $value['jam_mulai'],
+                            "lewat_hari" => $value['is_lewat_hari'] == 1 ? true : false,
                             "hari_libur" => $value['is_hari_libur'] == 1 ? true : false
                         ]);
 

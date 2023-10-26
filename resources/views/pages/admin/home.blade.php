@@ -72,6 +72,11 @@
                                                 title="{{ $lemburan->approver }}"><i
                                                     class="fa-solid fa-circle-xmark text-danger fa-xl"></i></a>
                                         @endif
+                                        @if ($lemburan->approve == 3)
+                                            <a href="#" data-toggle="tooltip" data-placement="right"
+                                                title="{{ $lemburan->approver }}"><i
+                                                    class="fa-solid fa-ban text-warning fa-xl"></i></a>
+                                        @endif
                                     </td>
                                     <td>{{ $lemburan->name }}</td>
                                     <td>{{ $lemburan->alasan }}</td>

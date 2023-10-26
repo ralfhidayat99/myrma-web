@@ -1,8 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     const dropzones = document.getElementsByClassName("dropzone");
     const fileInputs = document.getElementsByClassName("fileInput");
+    const filenameTexts = document.getElementsByClassName("filename");
+    const dragTexts = document.getElementsByClassName("dragText");
     const splashAnimation = document.getElementById("splash");
     const period = document.getElementById("periodePicker");
+    let periode = [];
 
     for (let i = 0; i < dropzones.length; i++) {
         const element = dropzones[i];
@@ -21,8 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
             element.classList.remove("hover");
             splashAnimation.style.display = "block";
             // console.log(period.value);
-            let periode = this.getPeriod(period.value)
-            console.log('index : '+periode);
+            periode = this.getPeriod(period.value)
             handleFile(e.dataTransfer.files[0]);
     
             // Buat klon elemen input tipe file
@@ -51,23 +53,85 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         function handleFile(file) {
             if (file) {
-                console.log('File selected:', file);
-    
-                // splashAnimation.style.display = 'none';
-                // Lakukan tindakan yang diperlukan dengan file yang dipilih di sini
-                // prosesAbsen(file, true);
+                prosesAbsen(file, periode[i]);
             }
         }
+        function prosesAbsen(file, periode) {
+            document.getElementById("absen2Loading").style.display = "inline-block";
+            const formData = new FormData();
+            formData.append("absen", file);
+            formData.append("filter", periode);
+            formData.append("key", i);
+            console.log(periode);
+        
+            fetch("/api/absen-pertama", {
+                method: "POST",
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    // console.log(data);
+                    let form = document.getElementById("formGenrate");
+                        laporan = data["lembur"];
+                        form.appendChild(this.addInput("laporan"+(i+1), laporan));
+                    // Lakukan manipulasi data atau tindakan lain sesuai kebutuhan Anda di sini
+                    if (data["status"] == 200) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: data["message"],
+                            icon: "success",
+                            confirmButtonText: "Tutup",
+                        });
+                        fileInputs[i].file = file;
+                            filenameTexts[i].textContent = file.name;
+                            filenameTexts[i].classList.add("show");
+                            filenameTexts[i].style.display = "inline-block";
+                            dragTexts[i].style.display = "none";
+                        // if (first) {
+                        //     fileInput1.file = file;
+                        //     filenameText1.textContent = file.name;
+                        //     filenameText1.classList.add("show");
+                        //     filenameText1.style.display = "inline-block";
+                        //     dragText1.style.display = "none";
+                        // } else {
+                        //     fileInput2.file = file;
+                        //     filenameText2.textContent = file.name;
+                        //     filenameText2.classList.add("show");
+                        //     filenameText2.style.display = "inline-block";
+                        //     dragText2.style.display = "none";
+                        // }
+                    } else {
+                        Swal.fire({
+                            title: "Error!",
+                            text: data["message"],
+                            icon: "error",
+                            confirmButtonText: "Tutup",
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                })
+                .finally(() => {
+                    // Menyembunyikan indikator loading setelah proses selesai
+                    document.getElementById("absen2Loading").style.display = "none";
+                });
+        }
+        
     }
 
 })
 
-function handleFile(params) {
-    
+function addInput(name, value) {
+    let input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = JSON.stringify(value);
+    return input;
 }
 
 function getPeriod(tgl) {
-    // Tanggal awal dan akhir dalam format "Y-m-d"
+    // Tanggal awal dan akhir dalam format "d-m-Y"
     var bln = tgl.split(' to ');
     var tanggal_awal, tanggal_akhir;
 
@@ -78,6 +142,13 @@ function getPeriod(tgl) {
         tanggal_awal = bln[0];
         tanggal_akhir = bln[0];
     }
+
+    // Ubah format tanggal awal dan tanggal akhir ke "Y-m-d"
+    var tglAwalParts = tanggal_awal.split('-');
+    tanggal_awal = tglAwalParts[2] + '-' + tglAwalParts[1] + '-' + tglAwalParts[0];
+
+    var tglAkhirParts = tanggal_akhir.split('-');
+    tanggal_akhir = tglAkhirParts[2] + '-' + tglAkhirParts[1] + '-' + tglAkhirParts[0];
 
     // Buat objek Date untuk tanggal awal dan akhir
     var datetime_awal = new Date(tanggal_awal);
@@ -95,20 +166,31 @@ function getPeriod(tgl) {
         // Tanggal akhir periode
         var tahun = datetime_awal.getFullYear();
         var bulan = datetime_awal.getMonth() + 1;
-        var tanggal_akhir_periode = tahun + '-' + (bulan < 10 ? '0' : '') + bulan + '-' + new Date(tahun, bulan, 0).getDate();
+        var akhir_bulan = new Date(tahun, bulan, 0).getDate();
+        var tanggal_akhir_periode = tahun + '-' + (bulan < 10 ? '0' : '') + bulan + '-' + (akhir_bulan < 10 ? '0' : '') + akhir_bulan;
 
         // Jika tanggal akhir periode melebihi tanggal akhir rentang, atur tanggal akhir ke tanggal akhir rentang
         if (datetime_akhir < new Date(tanggal_akhir_periode)) {
             tanggal_akhir_periode = tanggal_akhir;
         }
 
+        // Ubah format tanggal awal dan tanggal akhir kembali ke "d-m-Y"
+        var tglAwalISO = tanggal_awal_periode.split('-');
+        tanggal_awal_periode = tglAwalISO[2] + '-' + tglAwalISO[1] + '-' + tglAwalISO[0];
+
+        var tglAkhirISO = tanggal_akhir_periode.split('-');
+        tanggal_akhir_periode = tglAkhirISO[2] + '-' + tglAkhirISO[1] + '-' + tglAkhirISO[0];
+
         // Tambahkan pasangan tanggal awal dan tanggal akhir ke dalam array
         periode_tanggal.push([tanggal_awal_periode, tanggal_akhir_periode]);
 
         // Pindah ke bulan berikutnya
         datetime_awal.setMonth(datetime_awal.getMonth() + 1);
+        datetime_awal.setDate(1); // Atur tanggal ke 1 untuk menghindari perubahan yang tidak diinginkan di bulan berikutnya
     }
-    console.log(periode_tanggal);
 
     return periode_tanggal;
 }
+
+
+

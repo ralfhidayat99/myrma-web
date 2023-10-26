@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LemburController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\TerlambatController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cuti',  [CutiController::class, 'index']);
 
     Route::resource('users', UserController::class);
+    Route::resource('terlambats', TerlambatController::class);
 });
 
 

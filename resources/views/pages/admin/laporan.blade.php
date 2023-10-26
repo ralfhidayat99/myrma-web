@@ -134,11 +134,12 @@
                                         {{-- <input type="file" name="excel_f/ile"> --}}
                                         {{-- <input type="file" name="excel_file"> --}}
                                         <div id="{{ 'dropzone' . $key }}" class="dropzone" style="margin-top:-20px">
-                                            <span id="dragText1">Drag and drop file here, or click to
+                                            <span class="dragText" id="{{ 'dragText' . $key }}">Drag and drop file here, or
+                                                click to
                                                 browse</span>
                                             <input name="{{ 'absen' . $key }}" type="file" class="fileInput"
                                                 id="{{ 'fileInput' . $key }}" style="display: none;">
-                                            <div id="filename1" class="filename" style="display: none">
+                                            <div id="{{ 'filename' . $key }}" class="filename" style="display: none">
                                                 <span id="filenameText"></span>
 
                                             </div>
@@ -191,7 +192,7 @@
         flatpickr("#periodePicker", {
             // minDate: "today",
             mode: "range",
-            dateFormat: "Y-m-d",
+            dateFormat: "d-m-Y",
         });
     </script>
     {{-- <style>

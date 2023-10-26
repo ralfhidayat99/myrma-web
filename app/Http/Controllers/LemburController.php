@@ -77,6 +77,7 @@ class LemburController extends Controller
                 'alasan' => 'required',
                 'is_hari_libur' => 'required',
             ]);
+            $validateData['jam_mulai'] = '17:00';
         } else {
             $validateData = $request->validate([
                 'tanggal' => 'required',

@@ -49,10 +49,13 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
+                @php
+                    $startDate = session('cutoff') . '-' . date('m-Y');
+                    $start = date('d-m-Y', strtotime('-1 month', strtotime($startDate)));
+                @endphp
                 @if (Auth::user()->is_admin === 1)
                     <li class="sidebar-item {{ $menu == 'lemburan' ? 'active' : '' }}">
-                        <a href="{{ url('lemburan/') . '/' . '25-' . date('m-Y') . ' to ' . date('d-m-Y') }}"
-                            class="sidebar-link">
+                        <a href="{{ url('lemburan/') . '/' . $start . ' to ' . date('d-m-Y') }}" class="sidebar-link">
                             <i class="fa-solid fa-file-invoice"></i>
                             <span>Lemburan</span>
                         </a>
@@ -95,15 +98,15 @@
                     </li>
                 @endif
 
-                <li class="sidebar-item {{ $menu == 'cuti' ? 'active' : '' }}">
+                <li class="sidebar-item {{ $menu == 'Cuti' ? 'active' : '' }}">
                     <a href="{{ url('cuti') }}" class="sidebar-link">
                         <i class="fa-solid fa-hotel"></i>
                         <span>Cuti</span>
                     </a>
                 </li>
 
-                <li class="sidebar-item {{ $menu == 'terlambat' ? 'active' : '' }}">
-                    <a href="{{ url('') }}" class="sidebar-link">
+                <li class="sidebar-item {{ $menu == 'Terlambat' ? 'active' : '' }}">
+                    <a href="{{ url('terlambats') }}" class="sidebar-link">
                         <i class="fa-solid fa-clock"></i>
                         <span>Terlambat</span>
                     </a>
