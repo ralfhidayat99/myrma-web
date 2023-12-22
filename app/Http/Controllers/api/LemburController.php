@@ -36,10 +36,10 @@ class LemburController extends Controller
             ->whereBetween('tanggal', [$request->startDate, $request->endDate])
             ->latest()->get();
 
-
+        ////
         return response()->json([
             'responded' => $lembur,
-            'unresponded' => $unresponded
+            'unresponded' => $unresponded,
         ]);
     }
     public function getByIdSpv(Request $request, $id)
