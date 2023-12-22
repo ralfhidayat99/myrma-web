@@ -16,6 +16,7 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+
         $request->validate([
             'username' => ['required'],
             'password' => ['required'],
@@ -37,6 +38,25 @@ class AuthController extends Controller
             }
         } else {
             return response()->json(['message' => 'Anda Belum Terdaftar'], 401);
+        }
+    }
+    public function loginUser(Request $request)
+    {
+        $request->validate([
+            'username' => ['required'],
+            'password' => ['required'],
+        ]);
+        $usr = User::where('username', $request->username)->first();
+
+        if (!empty($usr)) {
+            if (Hash::check($request->password, $usr->password)) {
+
+                return response()->json(['ok' => '1', 'message' => 'Selamat Datang', 'userdata' => $usr]);
+            } else {
+                return response()->json(['ok' => '0', 'message' => 'Invalid login credentials']);
+            }
+        } else {
+            return response()->json(['ok' => '0', 'message' => 'Anda Belum Terdaftar']);
         }
     }
 

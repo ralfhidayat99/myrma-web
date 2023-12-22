@@ -23,30 +23,31 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="table-responsive" style="margin-top: -50px">
+                <div class="table-responsive">
                     <table class="table table-hover table-lg">
                         <thead>
                             <tr>
                                 <th>Status</th>
                                 <th>Tanggal</th>
                                 <th width="25%">Alasan</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
 
                             @foreach ($lemburan->items() as $item)
-                                <tr>
+                                <tr class="{{ $item->is_lewat_hari == 1 ? 'lewatHari' : '' }}">
                                     <td class="col-3">
                                         <div class="d-flex align-items-center">
                                             <div class="avatar avatar-lg">
 
                                                 @php
-                                                    $img = $item->approve === 1 ? '/smile.png' : ($item->approve === 2 ? '/sad.jpg' : ($item->approve === 3 ? '/close.png' : '/clock.png'));
+                                                    $img = $item->approve == 1 ? '/smile.png' : ($item->approve == 2 ? '/sad.jpg' : ($item->approve == 3 ? '/close.png' : '/clock.png'));
                                                 @endphp
                                                 <img src="{{ url('/assets/images/faces') . $img }}" alt="rtes">
                                             </div>
                                             <p class="font-bold ms-3 mb-0">
-                                                {{ $item->approve === 1 ? 'Disetujui' : ($item->approve === 2 ? 'Ditolak' : ($item->approve === 3 ? 'Dibatalkan' : 'Menunggu')) }}
+                                                {{ $item->approve == 1 ? 'Disetujui' : ($item->approve == 2 ? 'Ditolak' : ($item->approve == 3 ? 'Dibatalkan' : 'Menunggu')) }}
                                             </p>
                                         </div>
                                         <small class="text-danger">{{ $item->declined_reason }}</small>
@@ -59,9 +60,17 @@
                                     </td>
 
                                     <td class="col-1">
-                                        @if ($item->approve !== 3)
-                                            <button id="warning" class="btn btn-outline-warning btn-sm "
-                                                onclick="cancelForm({{ $item->id }})">Batalkan</button>
+                                        @if ($item->approve != 3)
+                                            <div class="btn-group" role="group" aria-label="Basic example">
+                                                <button id="warning" class="btn btn-danger" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" title="Batalkan Lembur"
+                                                    onclick="cancelForm({{ $item->id }})"><i
+                                                        class='fas fa-times text-white'></i></button>
+                                                <button id="warning" class="btn btn-warning" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" title="Ubah"
+                                                    onclick="showUpdateFormModal({{ $item }})"><i
+                                                        class='fas fa-edit text-white'></i></button>
+                                            </div>
                                         @endif
                                     </td>
                                 </tr>
@@ -102,7 +111,49 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="lemburanModal" tabindex="-1" role="dialog" aria-labelledby="lemburanModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lemburanModalLabel">Lembur sampai Besok ?</h5>
+                    <button type="button" class="close" onclick="$('#lemburanModal').modal('hide')" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ url('lewathari') }}" method="post" id="formUpdateLembur">
+                    @csrf
+                    <div class="modal-body">
+                        <p>Lembur sampai besok ?.</p>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="is_lewat_hari" id="inlineRadio2"
+                                value="0" @checked(true)>
+                            <label class="form-check-label" for="inlineRadio2">Tidak</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="is_lewat_hari" id="inlineRadio1"
+                                value="1">
+                            <label class="form-check-label" for="inlineRadio1">Ya</label>
+                        </div>
+                        <input type="hidden" name="id" id="idLembur">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                        <button type="button" class="btn btn-warning"
+                            onclick="$('#lemburanModal').modal('hide')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <style>
+        .lewatHari {
+            background-color: #ffd6d6;
+        }
+
         .pagination {
             display: inline-block;
         }
@@ -150,6 +201,22 @@
             dateFormat: "Y-m-d",
         });
     </script>
+    <script>
+        // If you want to use tooltips in your project, we suggest initializing them globally
+        // instead of a "per-page" level.
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+                var tooltipTriggerList = [].slice.call(
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                );
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            },
+            false
+        );
+    </script>
 
     <script>
         function cancelForm(id) {
@@ -165,6 +232,13 @@
                     window.open('/batallembur/' + id, '_self')
                 }
             })
+        }
+
+        function showUpdateFormModal(dataLembur) {
+            $('#lemburanModalLabel').text(dataLembur.alasan);
+            $('#idLembur').val(dataLembur.id);
+            $('#lemburanModal').modal('show');
+
         }
 
 

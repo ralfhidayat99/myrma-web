@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const splashAnimation = document.getElementById("splash");
     const period = document.getElementById("periodePicker");
     let periode = [];
+    let dataLembur = [];
 
     for (let i = 0; i < dropzones.length; i++) {
         const element = dropzones[i];
@@ -62,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("absen", file);
             formData.append("filter", periode);
             formData.append("key", i);
-            console.log(periode);
+            console.log('periode :' +periode);
         
             fetch("/api/absen-pertama", {
                 method: "POST",
@@ -71,6 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then((response) => response.json())
                 .then((data) => {
                     // console.log(data);
+                    dataLembur.push(data["lembur"]);
+                    console.log(dataLembur);
                     let form = document.getElementById("formGenrate");
                         laporan = data["lembur"];
                         form.appendChild(this.addInput("laporan"+(i+1), laporan));
@@ -87,23 +90,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             filenameTexts[i].classList.add("show");
                             filenameTexts[i].style.display = "inline-block";
                             dragTexts[i].style.display = "none";
-                        // if (first) {
-                        //     fileInput1.file = file;
-                        //     filenameText1.textContent = file.name;
-                        //     filenameText1.classList.add("show");
-                        //     filenameText1.style.display = "inline-block";
-                        //     dragText1.style.display = "none";
-                        // } else {
-                        //     fileInput2.file = file;
-                        //     filenameText2.textContent = file.name;
-                        //     filenameText2.classList.add("show");
-                        //     filenameText2.style.display = "inline-block";
-                        //     dragText2.style.display = "none";
-                        // }
+                        
                     } else {
                         Swal.fire({
-                            title: "Error!",
-                            text: data["message"],
+                            title: data["message"],
+                            text: data["userNotFound"],
                             icon: "error",
                             confirmButtonText: "Tutup",
                         });

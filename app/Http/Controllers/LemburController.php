@@ -83,7 +83,8 @@ class LemburController extends Controller
                 'tanggal' => 'required',
                 'alasan' => 'required',
                 'is_hari_libur' => 'required',
-                'jam_mulai' => 'required'
+                'jam_mulai' => 'required',
+                'jam_selesai' => '',
             ]);
         }
 
@@ -136,6 +137,31 @@ class LemburController extends Controller
     {
         $lembur = Lembur::find($id);
         $lembur->approve = 3;
+        $lembur->save();
+        return back();
+    }
+    public function lewatHari(Request $request)
+    {
+        $validateData = $request->validate([
+            'id' => 'required',
+            'is_lewat_hari' => 'required',
+        ]);
+        $lembur = Lembur::find($validateData['id']);
+        $lembur->is_lewat_hari = $validateData['is_lewat_hari'];
+        $lembur->save();
+        return back();
+    }
+
+    //for admin
+    public function updateLemburStatus(Request $request)
+    {
+        // dd($request);
+        $validateData = $request->validate([
+            'id' => 'required',
+            'status' => 'required',
+        ]);
+        $lembur = Lembur::find($validateData['id']);
+        $lembur->approve = $validateData['status'];
         $lembur->save();
         return back();
     }

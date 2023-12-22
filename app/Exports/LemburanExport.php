@@ -18,6 +18,8 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
+use function PHPUnit\Framework\isNull;
+
 class LemburanExport implements ShouldAutoSize, WithHeadings, WithEvents
 {
     // public function view(): View
@@ -164,32 +166,40 @@ class LemburanExport implements ShouldAutoSize, WithHeadings, WithEvents
                 $jamMulai = $item['jam_mulai'];
                 //menentukan jam
 
-                if (count($item['absen']) <= 1) {
-                    $absenMasuk = 'TA';
-                    $absenPulang = 'TA';
-                    $jamLembur = 0;
-                } else if (count($item['absen']) == 2) {
-                    $absenMasuk = $item['absen'][0];
-                    $absenPulang = 'TA';
-                    $jamLembur = 0;
+                if ($item['jam_selesai'] != null) {
+                    // dd($item);
+                    $absenPulang = $item['jam_selesai'];
+                    $jamLembur = intval($absenPulang) - intval($jamMulai);
                 } else {
-                    $absenMasuk = $item['absen'][0];
-                    if ($item['lewat_hari']) {
-                        $absenPulang = $lemburanPegawai[$i + 1]['absen'][0];
-                        $jamLembur1 = intval('24:00') - intval($jamMulai);
-                        $jamLembur2 = intval($absenPulang);
-                        $jamLembur = $jamLembur1 + $jamLembur2;
-                        // $jamLembur = $this->hitungJamLembur($jamMulai, $absenPulang);
-                        $cellStyle = $sheet->getStyle('e' . ($index + $i) . ':i' . ($index + $i));
-                        $cellStyle->getFill()
-                            ->setFillType(Fill::FILL_SOLID)
-                            ->getStartColor()
-                            ->setARGB(Color::COLOR_RED);
+                    if (count($item['absen']) <= 1) {
+                        $absenMasuk = 'TA';
+                        $absenPulang = 'TA';
+                        $jamLembur = 0;
+                    } else if (count($item['absen']) == 2) {
+                        $absenMasuk = $item['absen'][0];
+                        $absenPulang = 'TA';
+                        $jamLembur = 0;
                     } else {
-                        $absenPulang = $item['absen'][count($item['absen']) - 2];
-                        $jamLembur = intval($absenPulang) - intval($jamMulai);
+                        $absenMasuk = $item['absen'][0];
+                        if ($item['lewat_hari']) {
+                            $absenPulang = $lemburanPegawai[$i + 1]['absen'][0];
+                            $jamLembur1 = intval('24:00') - intval($jamMulai);
+                            $jamLembur2 = intval($absenPulang);
+                            $jamLembur = $jamLembur1 + $jamLembur2;
+                            // $jamLembur = $this->hitungJamLembur($jamMulai, $absenPulang);
+                            $cellStyle = $sheet->getStyle('e' . ($index + $i) . ':i' . ($index + $i));
+                            $cellStyle->getFill()
+                                ->setFillType(Fill::FILL_SOLID)
+                                ->getStartColor()
+                                ->setARGB(Color::COLOR_RED);
+                        } else {
+                            $absenPulang = $item['absen'][count($item['absen']) - 2];
+                            $jamLembur = intval($absenPulang) - intval($jamMulai);
+                        }
                     }
                 }
+
+
 
                 //mewarnai cell yang merupakan lebur di hari libur
                 if ($item['hari_libur']) {
@@ -413,7 +423,7 @@ class LemburanExport implements ShouldAutoSize, WithHeadings, WithEvents
         Carbon::setLocale('id_ID');
         $periode = explode(' to ', $this->periode);
         $startDate = Carbon::createFromFormat('d-m-Y', $periode[0]);
-        $endDate = Carbon::createFromFormat('d-m-Y', $periode[1]);
+        $endDate =  Carbon::createFromFormat('d-m-Y', count($periode) < 2  ?  $periode[0] : $periode[1]);
 
         // // Ubah format tanggal ke bahasa Indonesia
         // $startDateIndonesia = $startDate->format('d F Y');

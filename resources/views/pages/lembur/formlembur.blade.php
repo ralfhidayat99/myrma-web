@@ -45,10 +45,17 @@
                         <div class="form-group row">
                             {{-- <input type="time" id="jam_mulai" name="jam_mulai" value="1"> --}}
                             <div class="col-md-6 col-sm-12">
-                                <label for="jam_mulai">Jam Mulai</label>
+                                <label for="jam_mulai">Dari</label>
                                 <input type="time" value=""
                                     class="form-control @error('jam_mulai') is-invalid @enderror" id="jam_mulai"
                                     name="jam_mulai">
+
+                            </div>
+                            <div class="col-md-6 col-sm-12" id="jamSelesai" style="display: none">
+                                <label for="jam_selesai">Sampai</label>
+                                <input type="time" value=""
+                                    class="form-control @error('jam_selesai') is-invalid @enderror" id="jam_selesai"
+                                    name="jam_selesai">
 
                             </div>
                         </div>
@@ -57,7 +64,7 @@
                     <div class="form-group form-label-group">
                         <label for="alasan">Alasan</label>
                         <div class="textarea-wrapper">
-                            <textarea id="alasan" rows="3" class="form-control" name="alasan"></textarea>
+                            <textarea id="alasan" rows="3" class="form-control" name="alasan" @required(true)></textarea>
                             <span id="charCount"></span>
                         </div>
                         @error('alasan')
@@ -132,6 +139,9 @@
 
         // Mendapatkan waktu saat ini
         var currentDateTime = new Date().toISOString().slice(0, 10);
+        let divJamSelesai = document.getElementById('jamSelesai');
+        let jam_selesai = document.getElementById('jam_selesai');
+
 
         // Mengatur nilai default
         dateTimeInput.value = currentDateTime;
@@ -141,6 +151,7 @@
             minDate: yesterday,
             dateFormat: "Y-m-d",
         });
+        let eTime = '1:00';
         flatpickr("#jam_mulai", {
             enableTime: true,
             time_24hr: true,
@@ -149,6 +160,27 @@
             defaultDate: "16:00",
             // minTime: "16:00",
             // maxTime: "22:30",
+            onChange: function(selectedDates, dateStr, instance) {
+                // console.log(selectedDates[0].getHours());
+                let sTime = selectedDates[0].getHours();
+                console.log((sTime + 1) + ':00');
+                if (sTime == 0 || sTime == 5) {
+                    divJamSelesai.style.display = 'inline-block';
+                    jam_selesai.value = (sTime + 1).toString().padStart(2, '0') + ':00';
+                } else {
+                    divJamSelesai.style.display = 'none';
+
+                }
+            },
+        });
+
+        flatpickr("#jam_selesai", {
+            enableTime: true,
+            time_24hr: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            defaultDate: jam_selesai.value,
+
         });
     </script>
 @endsection

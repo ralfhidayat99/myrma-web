@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Supervisor;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,22 +13,18 @@ class UserController extends Controller
     // Menampilkan daftar pengguna
     public function index()
     {
-        $users = User::all();
-        $data = [
-            'users' => $users,
-            'menu' => 'Karyawan'
-        ];
-        return view('pages.karyawan.index', $data);
+        $users = User::latest()->take(30)->get();
+        foreach ($users as $value) {
+            $value->index_absen = intval($value->index_absen);
+        }
+        return response($users);
     }
 
     // Menampilkan formulir untuk membuat pengguna baru
     public function create()
     {
-        $data = [
-            'menu' => 'Karyawan',
-            'supervisor' => Supervisor::all()
-        ];
-        return view('pages.karyawan.create', $data);
+        $data = Supervisor::all();
+        return response()->json($data);
     }
 
     // Menyimpan pengguna baru ke dalam database
@@ -46,24 +43,41 @@ class UserController extends Controller
         // Membuat pengguna baru
         $validateData['is_admin'] = '0';
         $validateData['password'] = bcrypt('123');
-        User::create($validateData);
-
-        return redirect()->route('users.index')->with('success', 'Pengguna berhasil dibuat!');
+        $newUser = User::create($validateData);
+        if ($newUser) {
+            return response()->json([
+                'ok' => 1,
+                'message' => 'User berhasil ditambahkan',
+                'newUser' => $newUser
+            ]);
+        } else {
+            return response()->json([
+                'ok' => 0,
+                'message' => 'User gagal ditambahkan',
+            ]);
+        }
     }
 
     // Menampilkan detail pengguna
     public function show($id)
     {
         $user = User::find($id);
-        return view('users.show', ['user' => $user]);
+        return response()->json($user);
+    }
+    // Menampilkan detail pengguna
+    public function search(Request $request)
+    {
+        if ($request->name == '') {
+            $user = User::latest()->take(30)->get();
+        } else {
+            $user = User::where('name', 'like', '%' . $request->name . '%')->get();
+        }
+        foreach ($user as $value) {
+            $value->index_absen = intval($value->index_absen);
+        }
+        return response()->json($user);
     }
 
-    // Menampilkan formulir untuk mengedit pengguna
-    public function edit($id)
-    {
-        $user = User::find($id);
-        return view('users.edit', ['user' => $user]);
-    }
 
     // Memperbarui informasi pengguna
     public function update(Request $request, $id)
@@ -85,16 +99,42 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('users.index')->with('success', 'Pengguna berhasil diperbarui!');
+        return response($user);
+    }
+    public function changePassword(Request $request, $id)
+    {
+        // Validasi input pengguna
+        $this->validate($request, [
+            'password' => 'required',
+        ]);
+
+        $user = User::find($id);
+        $user->password = bcrypt($request->input('password'));
+
+        $user->save();
+
+        return response()->json([
+            'ok' => 1,
+            'message' => 'password berhasil diubah'
+        ]);
     }
 
     // Menghapus pengguna
     public function destroy($id)
     {
         $user = User::find($id);
+        if (!$user) {
+            return response()->json([
+                'ok' => 0,
+                'message' => 'user tidak ditemukan'
+            ]);
+        }
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus!');
+        return response()->json([
+            'ok' => 1,
+            'message' => 'user berhasil dihapus'
+        ]);
     }
 
     function kalibrasiAbsen(Request $request)

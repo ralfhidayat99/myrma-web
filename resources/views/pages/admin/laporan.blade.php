@@ -147,27 +147,8 @@
                                         </div>
                                         <br>
                                     @endforeach
+                                    <input type="hidden" name="jmlPeriode" value="{{ count($periode) }}">
 
-                                    {{-- <div class="row">
-                                        <div class="col-md-6">
-                                            <p class="card-text">Upload file absensi disini</p>
-                                        </div>
-                                        <div class="col-md-6 text-end">
-                                            <div class="spinner-border text-danger" role="status" id="absen2Loading"
-                                                style="display: none">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div id="dropzone2" class="dropzone">
-                                        <span id="dragText2">Drag and drop file here, or click to browse</span>
-                                        <input name="absen2" type="file" id="fileInput2" style="display: none;"
-                                            @required(true)>
-                                        <div id="filename2" class="filename" style="display: none">
-                                            <span id="filenameText"></span>
-                                        </div>
-                                        <div id="splash" class="splash-animation"></div>
-                                    </div> --}}
                                 </div>
                             </div>
                             <div class="card-footer">
@@ -176,7 +157,6 @@
                             </div>
                         </form>
 
-                        <a href="{{ url('laporan/test') }}" class="btn btn-warning">Test Generate</a>
                     </div>
 
                 </div>

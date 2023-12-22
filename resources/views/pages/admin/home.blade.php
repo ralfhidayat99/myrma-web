@@ -45,7 +45,7 @@
             <div class="card-body" style="width: 100%">
 
                 <div class="table-responsive">
-                    <table id="table1" class="table table-bordered table-striped">
+                    <table id="table1" class="table table-bordered table-striped table-hover" style="cursor: pointer;">
                         <thead class="thead-dark">
                             <tr>
                                 <th width="5%">No</th>
@@ -53,12 +53,14 @@
                                 <th>Nama</th>
                                 <th>Alasan</th>
                                 <th width="20%">Tanggal</th>
+                                <th width="10%">jam_mulai</th>
                                 <th width="20%">Dibuat</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($data as $key => $lemburan)
-                                <tr>
+                                <tr onclick="showOption({{ $lemburan }})"
+                                    class="{{ $lemburan->is_lewat_hari == '1' ? 'bg-info text-white' : '' }}">
                                     <td class="text-center">{{ $key + 1 }}</td>
 
                                     <td class="text-center" style="padding-top: 18px">
@@ -81,6 +83,7 @@
                                     <td>{{ $lemburan->name }}</td>
                                     <td>{{ $lemburan->alasan }}</td>
                                     <td>{{ $lemburan->tanggal }}</td>
+                                    <td>{{ $lemburan->jam_mulai }}</td>
                                     <td>{{ $lemburan->tgl_dibuat }}</td>
                                 </tr>
                             @endforeach
@@ -89,7 +92,37 @@
                 </div>
             </div>
         </div>
+
     </section>
+    <!-- Modal -->
+    <div class="modal fade" id="lemburanModal" tabindex="-1" role="dialog" aria-labelledby="lemburanModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lemburanModalLabel">Lemburan</h5>
+                    <button type="button" class="close" onclick="$('#lemburanModal').modal('hide')" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ url('updatelemburstatus') }}" method="post" id="formUpdateLembur">
+                    @csrf
+                    <div class="modal-body">
+                        <p id="alasanLembur">...</p>
+                        <input type="hidden" name="status" id="statusLembur">
+                        <input type="hidden" name="id" id="idLembur">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="updateLemburStatus('1')">Approve</button>
+                        <button type="button" class="btn btn-danger" onclick="updateLemburStatus('2')">Decline</button>
+                        <button type="button" class="btn btn-warning" onclick="updateLemburStatus('3')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 
 
 
@@ -111,5 +144,36 @@
             mode: "range",
             dateFormat: "d-m-Y",
         });
+    </script>
+    <script>
+        function showOption(dataLembur) {
+            console.log(dataLembur);
+            let optionModal = document.getElementById('lemburanModal');
+            $('#lemburanModalLabel').text(dataLembur.name);
+            $('#alasanLembur').text(dataLembur.alasan);
+            $('#idLembur').val(dataLembur.id);
+            $('#lemburanModal').modal('show');
+            // Swal.fire({
+            //     title: dataLembur.name,
+            //     text: dataLembur.alasan,
+            //     showDenyButton: true,
+            //     showCancelButton: true,
+            //     confirmButtonText: 'Batalkan',
+            //     denyButtonText: `Setujui`,
+            // }).then((result) => {
+            //     /* Read more about isConfirmed, isDenied below */
+            //     if (result.isConfirmed) {
+            //         updateLemburStatus('gg');
+            //     } else if (result.isDenied) {
+            //         Swal.fire('Changes are not saved', '', 'info')
+            //     }
+            // })
+        }
+
+        function updateLemburStatus(status) {
+            $('#statusLembur').val(status);
+            $('#formUpdateLembur').submit();
+
+        }
     </script>
 @endsection

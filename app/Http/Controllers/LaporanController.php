@@ -95,8 +95,8 @@ class LaporanController extends Controller
         // return response($request);
         $file = $request->file('absen');
         $filter = explode(',', $validateData['filter']);
-        $filterA = str_replace('-', '/', $filter[0]);
-        $filterB = str_replace('-', '/', $filter[1]);
+        $filterA = $filter[0];
+        $filterB = $filter[1];
         // $filterB = DateTime::createFromFormat('d/m/Y', $filter[1]);
 
         // filter diambil dari form, priode diambil dari file
@@ -107,13 +107,23 @@ class LaporanController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
         $periode = $sheet->getCell('C2')->getValue();
-        $exp = explode('~', $periode);
-        $periodeAwal = str_replace(' ', '', $exp[0]);
-        $periodeAkhir = str_replace(' ', '', $exp[1]);
+        $exp = explode(' ~ ', $periode);
+        $periodeAwal = str_replace('/', '-', $exp[0]);
+        $periodeAkhir = str_replace('/', '-', $exp[1]);
         // return response($key <= 0 ? true : false);
-        if ($filterA == $periodeAwal && $filterB == $periodeAkhir) {
+
+        // cek di cell d tanggal berapa
+        $firstDateCell = $sheet->getCell('d3')->getValue();
+        // return response($firstDateCell);
+
+        // return response()->json([
+        //     'filterA' => $filterA,
+        //     'filterB' => $filterB,
+        // ]);
+        // return response($periode);
+        if (strtotime($filterA) >= strtotime($periodeAwal) && strtotime($filterB) <= strtotime($periodeAkhir)) {
             // return $this->readExcel($filterA, $filterB, $file, true);
-            return $this->readExcel(DateTime::createFromFormat('d/m/Y', $filterA), DateTime::createFromFormat('d/m/Y', $filterB), $file, $key <= 0 ? true : false);
+            return $this->readExcel($filterA, $filterB, $file, $firstDateCell);
         }
         return response()->json([
             'message' => 'file tidak sesuai',
@@ -125,23 +135,24 @@ class LaporanController extends Controller
     }
 
 
-    public function readExcel($filterA, $filterB, $file, $first)
+    public function readExcel($filterA, $filterB, $file, $firstDateCell)
     {
         $leters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'aa', 'ab', 'ac', 'ad', 'ae', 'af', 'ag', 'ah', 'ai', 'aj', 'ak', 'al', 'am', 'an', 'ao', 'ap', 'aq', 'ar', 'as', 'at', 'au', 'av', 'aw', 'ax', 'ay', 'az'];
-        $startDate = date_format($filterA, 'Y-m-d');
-        $endDate = date_format($filterB, 'Y-m-d');
+        // $startDate = DateTime::createFromFormat('Y-m-d', $filterA);
+        $startDate = date("Y-m-d", strtotime($filterA));
+        $endDate = date("Y-m-d", strtotime($filterB));
 
         // return response()->json([
         //     'startDate' => $startDate,
         //     'endDate' => $endDate,
         // ]);
 
-        $dataLemburan = Lembur::select('users.name', 'users.departemen', 'users.jabatan', 'users.divisi', 'lemburs.alasan', 'lemburs.is_hari_libur', 'lemburs.tanggal', 'lemburs.jam_mulai', 'lemburs.is_lewat_hari')
+        $dataLemburan = Lembur::select('users.name', 'users.departemen', 'users.jabatan', 'users.divisi', 'users.index_absen', 'lemburs.alasan', 'lemburs.is_hari_libur', 'lemburs.tanggal', 'lemburs.jam_mulai', 'lemburs.jam_selesai', 'lemburs.is_lewat_hari')
             ->join('users', 'lemburs.id_user', '=', 'users.id')
             // ->whereMonth('tanggal', '=', $periode)
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->where('approve', 1)
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal', 'asc')
             ->get()->toArray();
 
         $spreadsheet = IOFactory::load($file);
@@ -165,75 +176,59 @@ class LaporanController extends Controller
         $lembur = [];
         // loop grup
         // dd($groupedData);
+        $userNotFound = [];
         foreach ($groupedData as $key => $lemburanPegawai) {
             $employee = [];
             $groupedData[$key] = [];
-            $tempName = '';
 
             // dd($lemburanPegawai);
-            // return ($lemburanPegawai);
+            $name = $sheet->getCell('b' . ($lemburanPegawai[0]['index_absen']))->getValue();
 
-            // loop pegawai
-            foreach ($lemburanPegawai as $index => $value) {
-                $tempName = $value['name'];
-                // loop absensi mencari data absen 
-                for ($index = 0; $index <= ($lastRow - $startRow); $index++) {
+            if (str_contains(strtoupper($name), strtoupper($key))) {
+                foreach ($lemburanPegawai as $index => $value) {
+                    // return response($value['index_absen']);
+                    $name = $sheet->getCell('b' . ($value['index_absen']))->getValue();
 
                     $tanggal = explode("-", $value['tanggal']); // tanggal kapan dia lembur sesuai yang diajukan
-                    $name = $sheet->getCell('b' . ($startRow + $index))->getValue();
+                    $absen = $sheet->getCell($leters[$tanggal[2] - intval($firstDateCell) + 3] . $value['index_absen'])->getValue(); // + 3 karna dimulai dari kolom ke 4 (d)
 
-                    // cek cell mana yang tanggalnya sesuai
-                    if (!$first) {
-                        $absen = $sheet->getCell($leters[$tanggal[2] + 2] . ($startRow + $index))->getValue(); // +2 karna dimulai dari kolom d
-                    } else {
-
-                        // 22 berasal dari tgl cutoff dikurangi 3 (cell absensi ada di kolom ke 4 (D)
-                        $absen = $sheet->getCell($leters[$tanggal[2] - 22] . ($startRow + $index))->getValue();
-                    }
-                    // for ($tanggal=0; $tanggal < 31; $tanggal++) { 
-                    // return response()->json([
-                    //     'absen' => $absen,
-                    //     'fisrt' => $first,
-                    //     'name' => $name,
-                    //     'tanggal' => $tanggal,
-                    // ]);
-
-                    // }
-
-                    // dd($value);
-                    if (str_contains(strtoupper($name), strtoupper($value['name']))) {
-                        $arrAbsen = explode("\n", $absen);
-
-                        array_push($employee, [
-                            "nama" => $name,
-                            "absen" => $arrAbsen,
-                            "tgl" => $value['tanggal'],
-                            "alasan" => $value['alasan'],
-                            "jabatan" => $value['jabatan'],
-                            "divisi" => $value['divisi'],
-                            "tanggal" => $this->formatTanggalIndonesia($value['tanggal']),
-                            "jam_mulai" => $value['jam_mulai'],
-                            "lewat_hari" => $value['is_lewat_hari'] == 1 ? true : false,
-                            "hari_libur" => $value['is_hari_libur'] == 1 ? true : false
-                        ]);
-
-                        break;
-                    }
+                    // return response($name);
+                    $arrAbsen = explode("\n", $absen);
+                    // return response($name);
+                    array_push($employee, [
+                        "nama" => $name,
+                        "absen" => $arrAbsen,
+                        "tgl" => $value['tanggal'],
+                        "alasan" => $value['alasan'],
+                        "jabatan" => $value['jabatan'],
+                        "divisi" => $value['divisi'],
+                        "tanggal" => $this->formatTanggalIndonesia($value['tanggal']),
+                        "jam_mulai" => $value['jam_mulai'],
+                        "jam_selesai" => $value['jam_selesai'],
+                        "lewat_hari" => $value['is_lewat_hari'] == 1 ? true : false,
+                        "hari_libur" => $value['is_hari_libur'] == 1 ? true : false
+                    ]);
                 }
+            } else {
+                array_push($userNotFound, $key);
             }
+            // loop pegawai
+
             if (count($employee) > 0) {
                 array_push($lembur, $employee);
-            } else {
-                return response()->json([
-                    'message' => strtoupper($tempName) . ' tidak ada di dalam file absen',
-                    'status' => 400
-                ]);
             }
             // dd($lembur);
         }
         // return Excel::download(new LemburanExport($lembur), 'lemburan.xlsx');
+        if (count($userNotFound) > 0) {
+            return response()->json([
+                'message' => 'pengguna ini tidak ada di dalam file absen',
+                'userNotFound' => $userNotFound,
+                'status' => 400
+            ]);
+        }
         return response()->json([
-            'first' => $first,
+            'first' => $firstDateCell,
             'lembur' => $lembur,
             'message' => 'upload file berhasil',
             'status' => 200
@@ -256,15 +251,23 @@ class LaporanController extends Controller
 
     public function generateLaporan(Request $request)
     {
-        $data = $request->only('laporan1', 'laporan2', 'month');
-        $laporan1 = json_decode($data['laporan1'], true);
-        $laporan2 = json_decode($data['laporan2'], true);
-
-        $laporanAll = $this->dataMerger($laporan1, $laporan2);
+        $jmlPeriode = intval($request->jmlPeriode);
+        $laporans = [];
+        for ($i = 0; $i < $jmlPeriode; $i++) {
+            $laporan1 = json_decode($request['laporan' . $i + 1], true);
+            array_push($laporans, $laporan1);
+        }
+        // array_push($laporans, 'month');
+        // return response($laporans);
+        // $data = $request->only($laporans);
+        // $laporan1 = json_decode($data['laporan1'], true);
+        // $laporan2 = json_decode($data['laporan2'], true);
+        // dd($laporans);
+        $laporanAll = $this->dataMerger($laporans);
         // $laporanAll = array_merge($laporan1, $laporan2);
         // dd($laporanAll);
         $laporanDivided = $this->employeeDivider($laporanAll);
-        $periode = $data['month'];
+        $periode = $request['month'];
         // dd($laporanDivided);
 
         return Excel::download(new LemburanExport($laporanDivided, $periode), 'lemburan.xlsx');
@@ -273,29 +276,36 @@ class LaporanController extends Controller
         // $laporan = array_merge($validateData['laporan1'], $validateData['laporan2']);
     }
 
-    function dataMerger($data1, $data2)
+    function dataMerger($laporans)
     {
         $mergedData = [];
+        // dd($laporans);
 
         // Menggabungkan data dari $data1
-        foreach ($data1 as $items) {
-            $nama = $items[0]['nama'];
-            if (!isset($mergedData[$nama])) {
-                $mergedData[$nama] = $items;
-            } else {
-                $mergedData[$nama] = array_merge($mergedData[$nama], $items);
+        foreach ($laporans as $laporan) {
+            // dd($laporan);
+            foreach ($laporan as $users) {
+                // dd(count($users));
+                // dd($lembur);
+                $nama = $users[0]['nama'];
+                // dd($nama);
+                if (!isset($mergedData[$nama])) {
+                    $mergedData[$nama] = $users;
+                } else {
+                    $mergedData[$nama] = array_merge($mergedData[$nama], $users);
+                }
             }
         }
 
         // Menggabungkan data dari $data2
-        foreach ($data2 as $items) {
-            $nama = $items[0]['nama'];
-            if (!isset($mergedData[$nama])) {
-                $mergedData[$nama] = $items;
-            } else {
-                $mergedData[$nama] = array_merge($mergedData[$nama], $items);
-            }
-        }
+        // foreach ($data2 as $items) {
+        //     $nama = $items[0]['nama'];
+        //     if (!isset($mergedData[$nama])) {
+        //         $mergedData[$nama] = $items;
+        //     } else {
+        //         $mergedData[$nama] = array_merge($mergedData[$nama], $items);
+        //     }
+        // }
 
 
         return array_values($mergedData);

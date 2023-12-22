@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Jobs\TglFormatter;
 use App\Models\Lembur;
-use App\Models\Supervisor;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +11,7 @@ class HomeController extends Controller
 {
     function index(Request $request)
     {
-        if (intval(Auth::user()->is_admin === 1)) {
+        if (intval(Auth::user()->is_admin == 1)) {
             // return $this->adminDashboard(date('Y-m'));
             return AtasanController::index();
             // return $this->adminHome(date('Y-m'));

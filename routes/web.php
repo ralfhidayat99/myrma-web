@@ -32,6 +32,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/storelembur', [LemburController::class, 'store']);
     Route::post('/storelemburother', [LemburController::class, 'storeOther']);
     Route::get('/status', [LemburController::class, 'successAlert'])->name('status');
+    Route::post('/updatelemburstatus', [LemburController::class, 'updateLemburStatus']);
+    Route::post('/lewathari', [LemburController::class, 'lewatHari']);
 
     Route::get('/admin/{month}', [AtasanController::class, 'index']);
     Route::get('/adminlogin', [AtasanController::class, 'login'])->name('admin.login');
@@ -47,6 +49,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cuti',  [CutiController::class, 'index']);
 
     Route::resource('users', UserController::class);
+    Route::post('users/kalibrasi', [UserController::class, 'kalibrasiAbsen']);
     Route::resource('terlambats', TerlambatController::class);
 });
 
