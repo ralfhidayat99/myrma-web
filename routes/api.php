@@ -35,9 +35,10 @@ Route::post('register', [AuthController::class, 'store']);
 Route::post('user/{id}/updatepassword', [AuthController::class, 'updateUserPassword']);
 
 Route::post('lembur', [LemburController::class, 'index']);
+Route::post('lembur/search', [LemburController::class, 'search']);
 Route::get('lembur/{id}', [LemburController::class, 'getByIdSpv']);
 Route::get('lembur/user/{id}', [LemburController::class, 'getByIdUser']);
-Route::post('lembur/{id}/lewathari', [LemburController::class, 'updateLewatHari']);
+Route::post('lembur/{id}/update', [LemburController::class, 'update']);
 Route::get('tobeexpired/{id}', [LemburController::class, 'toBeExpired']);
 Route::get('detail/{id}', [LemburController::class, 'show']);
 Route::post('approval/{id}', [LemburController::class, 'approval']);

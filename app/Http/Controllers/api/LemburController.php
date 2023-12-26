@@ -68,6 +68,27 @@ class LemburController extends Controller
 
         return response()->json($lembur);
     }
+
+    public function search(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+
+        if ($request->name == '') {
+            $lembur = Lembur::select('lemburs.*', 'users.name', 'users.jabatan', 'users.id_atasan', 'supervisors.name as spv')
+                ->join('users', 'users.id',  '=', 'lemburs.id_user')
+                ->join('supervisors', 'supervisors.id',  '=', 'users.id_atasan')
+                ->whereBetween('tanggal', [$request->startDate, $request->endDate])
+                ->orderBy('tanggal', 'desc')->latest()->paginate($perPage)->onEachSide(1)->withQueryString();
+        } else {
+            $lembur = Lembur::select('lemburs.*', 'users.name', 'users.jabatan', 'users.id_atasan', 'supervisors.name as spv')
+                ->join('users', 'users.id',  '=', 'lemburs.id_user')
+                ->join('supervisors', 'supervisors.id',  '=', 'users.id_atasan')
+                ->where('users.name', 'like', '%' . $request->name . '%')
+                ->whereBetween('tanggal', [$request->startDate, $request->endDate])
+                ->orderBy('tanggal', 'desc')->latest()->paginate($perPage)->onEachSide(1)->withQueryString();
+        }
+        return response()->json($lembur);
+    }
     public function toBeExpired(Request $request, $id)
     {
         $tglFormat = new TglFormatter();
@@ -123,13 +144,15 @@ class LemburController extends Controller
 
         return response($lembur);
     }
-    public function updateLewatHari(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'lewat_hari' => 'required',
+        $data =  $request->validate([
+            'is_lewat_hari' => '',
+            'jam_mulai' => '',
+            'jam_selesai' => '',
         ]);
 
-        $lembur = Lembur::where('id', $id)->update(['is_lewat_hari' => $request->lewat_hari]);
+        $lembur = Lembur::where('id', $id)->update($data);
         if ($lembur) {
             return response()->json([
                 'ok' => 1,
