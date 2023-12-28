@@ -4,10 +4,10 @@ use App\Http\Controllers\api\AtasanController;
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\CutiController;
 use App\Http\Controllers\api\JenisCutiController;
+use App\Http\Controllers\api\LaporanController;
 use App\Http\Controllers\api\LemburController;
 use App\Http\Controllers\api\RolesController;
 use App\Http\Controllers\api\SupervisorController;
-use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +60,7 @@ Route::post('users/kalibrasi',  [UserController::class, 'apikalibrasiAbsen']);
 Route::resource('users', UserController::class);
 Route::post('users/search', [UserController::class, 'search']);
 Route::post('users/{id}/changepassword', [UserController::class, 'changePassword']);
+Route::post('users/checkusername', [UserController::class, 'checkUsernameAvailability']);
 
 Route::apiResource('jeniscuti', JenisCutiController::class);
 Route::apiResource('cuti', CutiController::class);
@@ -67,3 +68,5 @@ Route::post('cuti/{id}/takeaction', [CutiController::class, 'takeAction']);
 Route::get('cuti-user/{userId}', [CutiController::class, 'getByUserId']);
 
 Route::apiResource('roles', RolesController::class);
+
+Route::post('generatelembur', [LaporanController::class, 'generateLaporan']);

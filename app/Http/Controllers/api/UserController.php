@@ -58,6 +58,16 @@ class UserController extends Controller
         }
     }
 
+    public function checkUsernameAvailability(Request $request)
+    {
+        $username = $request->input('username');
+
+        // Periksa ketersediaan username di dalam tabel 'users'
+        $isAvailable = !User::where('username', $username)->exists();
+
+        return response()->json(['is_available' => $isAvailable]);
+    }
+
     // Menampilkan detail pengguna
     public function show($id)
     {
@@ -197,6 +207,10 @@ class UserController extends Controller
             }
         }
 
-        return response()->json($unregisteredUser);
+        return response()->json([
+            'message' => 'Berhasil di kalibrasi',
+            'ok' => 1,
+
+        ]);
     }
 }

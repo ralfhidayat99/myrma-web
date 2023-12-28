@@ -1,87 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
 use App\Exports\LemburanExport;
-use App\Exports\TestExprt;
+use App\Http\Controllers\Controller;
 use App\Models\Lembur;
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class LaporanController extends Controller
 {
-    public function index(Request $request)
-    {
-        $data['menu'] = 'lembur';
-        $data['bulanIni'] = $request->month;
-        $data['periode'] = $this->getPeriod($request->month);
-        $data['months'] = [
-            "2023-01",
-            "2023-02",
-            "2023-03",
-            "2023-04",
-            "2023-05",
-            "2023-06",
-            "2023-07",
-            "2023-08",
-            "2023-09",
-            "2023-10",
-            "2023-11",
-            "2023-12",
-        ];
-        // dd($data['periode']);
-
-        return view('pages.admin.laporan', $data);
-    }
-
-    function getPeriod($tgl)
-    {
-        // Tanggal awal dan akhir dalam format "Y-m-d"
-        $bln = explode(' to ', $tgl);
-        if (count($bln) > 1) {
-            $tanggal_awal = $bln[0];
-            $tanggal_akhir = $bln[1];
-        } else {
-            $tanggal_awal = $bln[0];
-            $tanggal_akhir = $bln[0];
-        }
-
-        // Buat objek DateTime untuk tanggal awal dan akhir
-        $datetime_awal = new DateTime($tanggal_awal);
-        $datetime_akhir = new DateTime($tanggal_akhir);
-
-        // Inisialisasi array untuk menyimpan periode tanggal
-        $periode_tanggal = [];
-
-        // Iterasi melalui setiap periode
-        while ($datetime_awal <= $datetime_akhir) {
-            // Tanggal awal periode
-            $tanggal_awal_periode = $datetime_awal->format("Y-m-d");
-
-            // Tanggal akhir periode
-            $tanggal_akhir_periode = $datetime_awal->format("Y-m-t");
-
-            // Jika tanggal akhir periode melebihi tanggal akhir rentang, atur tanggal akhir ke tanggal akhir rentang
-            if ($datetime_akhir < new DateTime($tanggal_akhir_periode)) {
-                $tanggal_akhir_periode = $tanggal_akhir;
-            }
-
-            // Tambahkan pasangan tanggal awal dan tanggal akhir ke dalam array
-            $periode_tanggal[] = [$tanggal_awal_periode, $tanggal_akhir_periode];
-
-            // Pindah ke bulan berikutnya
-            $datetime_awal->modify('first day of next month');
-        }
-
-
-
-        // dd($periode_tanggal);
-        return $periode_tanggal;
-    }
-
     public function cekFileAbsen(Request $request)
     {
         if (!$request->hasFile('absen')) {
@@ -133,6 +63,19 @@ class LaporanController extends Controller
             'status' => 400,
             'ok' => 0
         ]);
+    }
+    function formatTanggalIndonesia($tanggal)
+    {
+        $date = Carbon::parse($tanggal)->locale('id');
+
+        $hari = $date->isoFormat('dddd');
+        $tanggal = $date->isoFormat('D');
+        $bulan = $date->isoFormat('MMMM');
+        $tahun = $date->isoFormat('YYYY');
+
+        $tanggalIndonesia = $hari . ', ' . $tanggal . ' ' . $bulan;
+
+        return $tanggalIndonesia;
     }
 
 
@@ -226,8 +169,7 @@ class LaporanController extends Controller
                 'message' => 'pengguna ini tidak ada di dalam file absen',
                 'userNotFound' => $userNotFound,
                 'status' => 400,
-                'ok' => 0
-
+                'ok' => 404
             ]);
         }
         return response()->json([
@@ -239,26 +181,13 @@ class LaporanController extends Controller
         ]);
     }
 
-    function formatTanggalIndonesia($tanggal)
-    {
-        $date = Carbon::parse($tanggal)->locale('id');
-
-        $hari = $date->isoFormat('dddd');
-        $tanggal = $date->isoFormat('D');
-        $bulan = $date->isoFormat('MMMM');
-        $tahun = $date->isoFormat('YYYY');
-
-        $tanggalIndonesia = $hari . ', ' . $tanggal . ' ' . $bulan;
-
-        return $tanggalIndonesia;
-    }
 
     public function generateLaporan(Request $request)
     {
         $jmlPeriode = intval($request->jmlPeriode);
         $laporans = [];
         for ($i = 0; $i < $jmlPeriode; $i++) {
-            $laporan1 = json_decode($request['laporan' . $i + 1], true);
+            $laporan1 = $request['laporan' . $i + 1];
             array_push($laporans, $laporan1);
         }
         // array_push($laporans, 'month');
@@ -332,91 +261,4 @@ class LaporanController extends Controller
 
         return $divisiKaryawan;
     }
-
-    function testGenerateLaporan()
-    {
-        return Excel::download(new TestExprt(), 'test_lemburan.xlsx');
-    }
-
-    // $data1 = [
-    //     [
-    //         [
-    //             'nama' => 'arif',
-    //             'jumlah' = 12,
-    //         ],
-    //         [
-    //             'nama' => 'arif',
-    //             'jumlah' = 3,
-    //         ],
-    //     ],
-    //     [
-    //         [
-    //             'nama' => 'didu',
-    //             'jumlah' = 4,
-    //         ]
-    //         [
-    //             'nama' => 'didu',
-    //             'jumlah' = 16,
-    //         ]
-    //     ]
-    // ]
-
-    // $data2 = [
-    //     [
-    //         [
-    //             'nama' => 'arif',
-    //             'jumlah' = 7,
-    //         ],
-    //     ],
-    //     [
-    //         [
-    //             'nama' => 'fino',
-    //             'jumlah' = 8,
-    //         ]
-    //         [
-    //             'nama' => 'fino',
-    //             'jumlah' = 10,
-    //         ]
-    //     ]
-    // ]
-
-    // $dataBaru = [
-    //     [
-    //         [
-    //             'nama' => 'arif',
-    //             'jumlah' = 12,
-    //         ],
-    //         [
-    //             'nama' => 'arif',
-    //             'jumlah' = 3,
-    //         ],
-    //         [
-    //             'nama' => 'arif',
-    //             'jumlah' = 7,
-    //         ],
-    //     ],
-    //     [
-    //         [
-    //             'nama' => 'didu',
-    //             'jumlah' = 4,
-    //         ]
-    //         [
-    //             'nama' => 'didu',
-    //             'jumlah' = 16,
-    //         ]
-    //     ],
-    //     [
-    //         [
-    //             'nama' => 'fino',
-    //             'jumlah' = 8,
-    //         ]
-    //         [
-    //             'nama' => 'fino',
-    //             'jumlah' = 10,
-    //         ]
-    //     ]
-
-    // ]
-
-
 }
